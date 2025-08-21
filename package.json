@@ -11,6 +11,7 @@
   "dependencies": {
     "multer": "^2.0.2",
     "next": "15.5.0",
+    "next-connect": "^1.0.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "webdav": "^5.8.0"
