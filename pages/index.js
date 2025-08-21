@@ -3,14 +3,12 @@ import { useState } from "react";
 export default function Home() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [link, setLink] = useState("");
+  const [url, setUrl] = useState("");
 
   const handleFileChange = (e) => {
     const f = e.target.files[0];
     setFile(f);
-
-    const url = URL.createObjectURL(f);
-    setPreview(url);
+    setPreview(URL.createObjectURL(f));
   };
 
   const handleUpload = async () => {
@@ -26,51 +24,42 @@ export default function Home() {
       });
 
       const data = await res.json();
-      if (data.url) setLink(data.url);
-      else alert("上传失败：" + (data.error || "未知错误"));
-    } catch (err) {
-      alert("上传失败：" + err.message);
+      if (res.ok) {
+        setUrl(data.url);
+      } else {
+        alert(data.error || "Upload failed");
+      }
+    } catch (e) {
+      alert("Upload error: " + e.message);
     }
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(link);
-    alert("链接已复制！");
+    navigator.clipboard.writeText(url);
+    alert("Copied to clipboard!");
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-      <h1 className="text-2xl font-bold mb-4">文件上传</h1>
-      <input type="file" onChange={handleFileChange} className="mb-4" />
+    <div style={{ maxWidth: 600, margin: "50px auto", textAlign: "center", fontFamily: "sans-serif" }}>
+      <h1>WebDAV 文件上传</h1>
+
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleUpload} style={{ marginLeft: 10 }}>上传</button>
+
       {preview && (
-        <div className="mb-4">
-          {file.type.startsWith("video") ? (
-            <video src={preview} controls className="max-w-xs rounded" />
+        <div style={{ marginTop: 20 }}>
+          {file.type.startsWith("image") ? (
+            <img src={preview} alt="预览" style={{ maxWidth: "100%" }} />
           ) : (
-            <img src={preview} alt="预览" className="max-w-xs rounded" />
+            <video src={preview} controls style={{ maxWidth: "100%" }} />
           )}
         </div>
       )}
-      <button
-        onClick={handleUpload}
-        className="bg-blue-500 text-white px-6 py-2 rounded mb-4 hover:bg-blue-600"
-      >
-        上传
-      </button>
-      {link && (
-        <div className="flex flex-col items-center">
-          <input
-            type="text"
-            readOnly
-            value={link}
-            className="border px-2 py-1 w-80 mb-2 rounded"
-          />
-          <button
-            onClick={copyLink}
-            className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
-          >
-            复制链接
-          </button>
+
+      {url && (
+        <div style={{ marginTop: 20 }}>
+          <input type="text" value={url} readOnly style={{ width: "80%" }} />
+          <button onClick={copyLink} style={{ marginLeft: 10 }}>复制链接</button>
         </div>
       )}
     </div>
